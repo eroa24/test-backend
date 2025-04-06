@@ -1,7 +1,5 @@
 # Backend - Prueba Técnica de Pagos
 
-Este es el backend para la prueba técnica de pagos, implementado con NestJS y siguiendo los principios de Clean Architecture y SOLID.
-
 ## Requisitos
 
 - Node.js >= 20.11
