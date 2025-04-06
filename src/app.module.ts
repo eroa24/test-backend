@@ -5,6 +5,7 @@ import { ConfigModule as AppConfigModule } from "./config/config.module";
 import { DatabaseModule } from "./database/database.module";
 import { ProductsModule } from "./products/products.module";
 import { getTypeOrmConfig } from "./database/typeorm.config";
+import { ClientsModule } from "./clients/clients.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { getTypeOrmConfig } from "./database/typeorm.config";
     }),
     DatabaseModule,
     ProductsModule,
+    ClientsModule,
   ],
 })
 export class AppModule {}
