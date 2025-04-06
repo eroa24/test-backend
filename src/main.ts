@@ -4,6 +4,8 @@ import { ConfigService } from "@nestjs/config";
 import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "@nestjs/common";
+import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
@@ -19,6 +21,9 @@ async function bootstrap() {
   );
 
   app.enableCors();
+
+  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle("API de Pagos")
