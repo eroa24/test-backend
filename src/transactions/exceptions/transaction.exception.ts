@@ -49,3 +49,17 @@ export class InsufficientStockException extends HttpException {
     );
   }
 }
+
+export class TransactionNotFoundException extends HttpException {
+  constructor(message: string, metadata?: any) {
+    super(
+      {
+        message,
+        error: "TRANSACTION_NOT_FOUND",
+        statusCode: HttpStatus.NOT_FOUND,
+        metadata,
+      },
+      HttpStatus.NOT_FOUND
+    );
+  }
+}

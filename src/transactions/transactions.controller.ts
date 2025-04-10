@@ -37,8 +37,13 @@ export class TransactionsController {
     return this.transactionsService.create(createTransactionDto);
   }
 
-  @Get(":id")
-  async getTransaction(@Param("id") id: string) {
-    return this.transactionsService.getTransaction(id);
+  @Get(":email")
+  async getTransaction(@Param("email") email: string) {
+    return this.transactionsService.getTransactionByEmail(email);
+  }
+
+  @Get("id/:id")
+  async getTransactionById(@Param("id") id: string) {
+    return this.transactionsService.getTransactionById(id);
   }
 }

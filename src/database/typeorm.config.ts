@@ -5,6 +5,7 @@ import { ProductImage } from "../products/entities/product-image.entity";
 import { Client } from "../clients/entities/client.entity";
 import { Transaction } from "../transactions/entities/transaction.entity";
 import { TransactionProduct } from "../transactions/entities/transaction-product.entity";
+import { Delivery } from "../deliveries/entities/delivery.entity";
 
 export const getTypeOrmConfig = (
   configService: ConfigService
@@ -19,7 +20,14 @@ export const getTypeOrmConfig = (
     username: dbConfig.username,
     password: dbConfig.password,
     database: dbConfig.database,
-    entities: [Product, ProductImage, Client, Transaction, TransactionProduct],
+    entities: [
+      Product,
+      ProductImage,
+      Client,
+      Transaction,
+      TransactionProduct,
+      Delivery,
+    ],
     synchronize: nodeEnv === "development",
     ssl: nodeEnv === "production" ? { rejectUnauthorized: false } : false,
   };

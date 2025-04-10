@@ -6,9 +6,12 @@ import { TransactionProduct } from "./entities/transaction-product.entity";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { ClientsService } from "../clients/clients.service";
 import { ProductsService } from "../products/products.service";
-import { TransactionCreationException } from "./exceptions/transaction.exception";
+import {
+  TransactionCreationException,
+  TransactionNotFoundException,
+} from "./exceptions/transaction.exception";
 import { PaymentService } from "../payment/payment.service";
-
+import { DeliveriesService } from "../deliveries/deliveries.service";
 @Injectable()
 export class TransactionsService {
   private readonly logger = new Logger(TransactionsService.name);
@@ -20,7 +23,8 @@ export class TransactionsService {
     private readonly transactionProductRepository: Repository<TransactionProduct>,
     private readonly clientsService: ClientsService,
     private readonly productsService: ProductsService,
-    private readonly paymentService: PaymentService
+    private readonly paymentService: PaymentService,
+    private readonly deliveriesService: DeliveriesService
   ) {}
 
   async create(
@@ -110,17 +114,42 @@ export class TransactionsService {
         status,
         lastFour: last_four,
         tax,
-        transactionProducts: [
-          {
-            product,
-            quantity: Number(quantity),
-            unitPrice: Number(product.price),
-          },
-        ],
       });
+
       const savedTransaction = await this.transactionRepository.save(
         transaction
       );
+
+      const transactionProduct = this.transactionProductRepository.create({
+        transaction: savedTransaction,
+        product,
+        quantity: Number(quantity),
+        unitPrice: Number(product.price),
+      });
+
+      await this.transactionProductRepository.save(transactionProduct);
+
+      // Cargar la transacción con sus relaciones para devolverla
+      //   const transactionWithRelations = await this.transactionRepository.findOne(
+      //     {
+      //       where: { id: savedTransaction.id },
+      //       relations: [
+      //         "client",
+      //         "transactionProducts",
+      //         "transactionProducts.product",
+      //       ],
+      //     }
+      //   );
+
+      await this.deliveriesService.create({
+        transactionId: savedTransaction.id,
+        deliveryAddress: address,
+        city,
+        postalCode,
+        name: fullName,
+        phone,
+      });
+
       return savedTransaction;
     } catch (error) {
       this.logger.error(
@@ -136,10 +165,54 @@ export class TransactionsService {
     }
   }
 
-  async getTransaction(id: string) {
-    const transaction = await this.transactionRepository.findOne({
-      where: { id },
-    });
-    return transaction;
+  async getTransactionByEmail(email: string) {
+    try {
+      const transactions = await this.transactionRepository.find({
+        where: { client: { email } },
+        relations: [
+          "client",
+          "transactionProducts",
+          "transactionProducts.product",
+        ],
+        order: {
+          createdAt: "DESC",
+        },
+      });
+
+      if (!transactions || transactions.length === 0) {
+        throw new TransactionNotFoundException(
+          `No se encontraron transacciones para el email: ${email}`
+        );
+      }
+
+      return transactions;
+    } catch (error) {
+      if (error instanceof TransactionNotFoundException) {
+        throw error;
+      }
+      throw new TransactionNotFoundException(
+        `Error al buscar transacciones para el email: ${email}`
+      );
+    }
+  }
+
+  async getTransactionById(id: string) {
+    try {
+      const transaction = await this.transactionRepository.findOne({
+        where: { id },
+      });
+
+      if (!transaction) {
+        throw new TransactionNotFoundException(
+          `Transacción con ID ${id} no encontrada`
+        );
+      }
+
+      return transaction;
+    } catch (error) {
+      throw new TransactionNotFoundException(
+        `Error al buscar transacción con ID ${id}`
+      );
+    }
   }
 }
