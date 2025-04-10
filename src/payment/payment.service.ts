@@ -124,7 +124,6 @@ export class PaymentService {
           },
         }
       );
-      console.log(response.data.data);
       return {
         token_card: response.data.data.id,
         last_four: response.data.data.last_four,
@@ -220,11 +219,9 @@ export class PaymentService {
 
       //   this.logger.log(`Pago creado exitosamente con ID: ${response.data.id}`);
 
-      //   console.log("WOMPI", response.data);
       //   return response.data.data;
       return response;
     } catch (error) {
-      console.log("EORRORORRO", error.response.data.error);
       this.logger.error(
         `Error al crear pago: ${error.response.data.error}`,
         error.stack
