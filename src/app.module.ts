@@ -6,6 +6,8 @@ import { DatabaseModule } from "./database/database.module";
 import { ProductsModule } from "./products/products.module";
 import { getTypeOrmConfig } from "./database/typeorm.config";
 import { ClientsModule } from "./clients/clients.module";
+import { TransactionsModule } from "./transactions/transactions.module";
+import { PaymentModule } from "./payment/payment.module";
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ClientsModule } from "./clients/clients.module";
     DatabaseModule,
     ProductsModule,
     ClientsModule,
+    TransactionsModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

@@ -34,7 +34,7 @@ export class ClientsController {
     description: "Ya existe un cliente con el mismo email",
   })
   async create(@Body() createClientDto: CreateClientDto): Promise<Client> {
-    return this.clientsService.create(createClientDto);
+    return this.clientsService.findByEmail(createClientDto);
   }
 
   @Get(":id")
