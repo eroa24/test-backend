@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Delivery, DeliveryStatus } from "./entities/delivery.entity";
@@ -18,7 +18,7 @@ export class DeliveriesService {
     private readonly deliveryRepository: Repository<Delivery>
   ) {}
 
-  async create(createDeliveryDto: CreateDeliveryDto) {
+  async create(createDeliveryDto: CreateDeliveryDto): Promise<Delivery> {
     try {
       const { transactionId, ...deliveryData } = createDeliveryDto;
 
@@ -32,7 +32,6 @@ export class DeliveriesService {
       });
 
       const savedDelivery = await this.deliveryRepository.save(delivery);
-
       return savedDelivery;
     } catch (error) {
       this.logger.error(
@@ -50,22 +49,27 @@ export class DeliveriesService {
     return `${prefix}-${timestamp}-${random}`;
   }
 
-  async getDelivery(id: string) {
-    try {
-      const delivery = await this.deliveryRepository.findOne({
-        where: { id },
-      });
-      return delivery;
-    } catch (error) {
+  async getDelivery(id: string): Promise<Delivery> {
+    const delivery = await this.deliveryRepository.findOne({
+      where: { id },
+    });
+
+    if (!delivery) {
       throw new DeliveryNotFoundException(
         `Delivery con ID ${id} no encontrada`
       );
     }
+
+    return delivery;
   }
 
-  async updateDeliveryStatus(id: string, updateDto: UpdateDeliveryStatusDto) {
+  async updateDeliveryStatus(
+    id: string,
+    updateDto: UpdateDeliveryStatusDto
+  ): Promise<Delivery> {
     try {
       const delivery = await this.getDelivery(id);
+
       if (delivery.status === DeliveryStatus.DELIVERED) {
         throw new DeliveryStatusUpdateException(
           "No se puede actualizar el estado de un delivery ya entregado"
@@ -77,9 +81,11 @@ export class DeliveriesService {
       }
 
       delivery.status = updateDto.status;
-      await this.deliveryRepository.save(delivery);
-      return delivery;
+      return await this.deliveryRepository.save(delivery);
     } catch (error) {
+      if (error instanceof DeliveryNotFoundException) {
+        throw error;
+      }
       throw new DeliveryStatusUpdateException(
         `Error al actualizar el estado del delivery: ${error.message}`
       );

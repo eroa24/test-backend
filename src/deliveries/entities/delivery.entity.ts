@@ -21,7 +21,7 @@ export class Delivery {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(() => Transaction)
+  @OneToOne(() => Transaction, (transaction) => transaction.delivery)
   @JoinColumn({ name: "transaction_id" })
   transaction: Transaction;
 
