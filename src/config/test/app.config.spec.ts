@@ -22,6 +22,7 @@ describe("App Config", () => {
         username: "postgres",
         password: "postgres",
         database: "test-back",
+        ssl: false,
       });
     });
 
@@ -31,6 +32,7 @@ describe("App Config", () => {
       process.env.DB_USERNAME = "test-user";
       process.env.DB_PASSWORD = "test-password";
       process.env.DB_DATABASE = "test-db";
+      process.env.DB_SSL = "true";
 
       const config = databaseConfig();
       expect(config).toEqual({
@@ -39,6 +41,7 @@ describe("App Config", () => {
         username: "test-user",
         password: "test-password",
         database: "test-db",
+        ssl: true,
       });
     });
   });
