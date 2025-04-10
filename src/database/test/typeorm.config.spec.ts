@@ -20,6 +20,7 @@ describe("TypeORM Config", () => {
             username: "test-user",
             password: "test-password",
             database: "test-db",
+            ssl: false,
           };
         }
         if (key === "app.nodeEnv") {
@@ -53,7 +54,7 @@ describe("TypeORM Config", () => {
     });
   });
 
-  it("should return correct production configuration", () => {
+  it("should return correct production configuration with SSL", () => {
     configService.get = jest.fn((key: string) => {
       if (key === "database") {
         return {
@@ -62,6 +63,7 @@ describe("TypeORM Config", () => {
           username: "test-user",
           password: "test-password",
           database: "test-db",
+          ssl: true,
         };
       }
       if (key === "app.nodeEnv") {

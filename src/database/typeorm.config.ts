@@ -29,6 +29,6 @@ export const getTypeOrmConfig = (
       Delivery,
     ],
     synchronize: nodeEnv === "development",
-    ssl: nodeEnv === "production" ? { rejectUnauthorized: false } : false,
+    ssl: dbConfig.ssl ? { rejectUnauthorized: false } : false,
   };
 };
