@@ -3,6 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { Product } from "../products/entities/product.entity";
 import { ProductImage } from "../products/entities/product-image.entity";
 import { Client } from "../clients/entities/client.entity";
+import { Transaction } from "../transactions/entities/transaction.entity";
+import { TransactionProduct } from "../transactions/entities/transaction-product.entity";
 
 export const getTypeOrmConfig = (
   configService: ConfigService
@@ -17,7 +19,7 @@ export const getTypeOrmConfig = (
     username: dbConfig.username,
     password: dbConfig.password,
     database: dbConfig.database,
-    entities: [Product, ProductImage, Client],
+    entities: [Product, ProductImage, Client, Transaction, TransactionProduct],
     synchronize: nodeEnv === "development",
     ssl: nodeEnv === "production" ? { rejectUnauthorized: false } : false,
   };

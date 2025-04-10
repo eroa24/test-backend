@@ -21,13 +21,13 @@ export class ClientsService {
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
     try {
-      const existingClient = await this.clientRepository.findOne({
-        where: { email: createClientDto.email },
-      });
+      // const existingClient = await this.clientRepository.findOne({
+      //   where: { email: createClientDto.email },
+      // });
 
-      if (existingClient) {
-        throw new ClientDuplicateException(createClientDto.email);
-      }
+      // if (existingClient) {
+      //   throw new ClientDuplicateException(createClientDto.email);
+      // }
 
       const client = this.clientRepository.create(createClientDto);
 
@@ -59,9 +59,38 @@ export class ClientsService {
       const client = await this.clientRepository.findOne({
         where: { id },
       });
+      console.log(client, "ERRPR");
 
       if (!client) {
         throw new ClientNotFoundException(id);
+      }
+
+      return client;
+    } catch (error) {
+      this.logger.error(
+        `Error al obtener cliente: ${error.message}`,
+        error.stack
+      );
+
+      if (error instanceof ClientNotFoundException) {
+        throw error;
+      }
+
+      throw new ClientCreationException("Error al obtener el cliente", {
+        originalError: error.message,
+      });
+    }
+  }
+
+  async findByEmail(user: CreateClientDto): Promise<Client> {
+    try {
+      const { email } = user;
+      const client = await this.clientRepository.findOne({
+        where: { email, isActive: true },
+      });
+
+      if (!client) {
+        return await this.create(user);
       }
 
       return client;
