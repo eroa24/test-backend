@@ -148,56 +148,19 @@ export class ProductsService {
     }
   }
 
-  async updateStock(
-    id: string,
-    updateStockDto: UpdateStockDto
-  ): Promise<Product> {
-    try {
-      const product = await this.findOne(id);
-      const { quantity } = updateStockDto;
+  async updateStock(id: string, updateStockDto: UpdateStockDto) {
+    const product = await this.findOne(id);
+    const updatedStock = product.stock + updateStockDto.quantity;
 
-      if (quantity < 0 && Math.abs(quantity) > product.stock) {
-        throw new ProductInsufficientStockException(
-          id,
-          Math.abs(quantity),
-          product.stock
-        );
-      }
-
-      product.stock += quantity;
-
-      if (product.stock < 0) {
-        product.stock = 0;
-      }
-
-      const updatedProduct = await this.productRepository.save(product);
-
-      this.logger.log(
-        `Stock actualizado para el producto ${id}: ${
-          quantity > 0 ? "+" : ""
-        }${quantity} unidades. Stock actual: ${updatedProduct.stock}`
-      );
-
-      return updatedProduct;
-    } catch (error) {
-      this.logger.error(
-        `Error al actualizar stock del producto: ${error.message}`,
-        error.stack
-      );
-
-      if (
-        error instanceof ProductNotFoundException ||
-        error instanceof ProductInsufficientStockException
-      ) {
-        throw error;
-      }
-
-      throw new ProductCreationException(
-        "Error al actualizar el stock del producto",
-        {
-          originalError: error.message,
-        }
+    if (updatedStock < 0) {
+      throw new ProductInsufficientStockException(
+        id,
+        Math.abs(updateStockDto.quantity),
+        product.stock
       );
     }
+
+    product.stock = updatedStock;
+    return await this.productRepository.save(product);
   }
 }

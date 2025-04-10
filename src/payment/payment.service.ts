@@ -7,6 +7,7 @@ import {
   TermsAndConditionsException,
   PaymentCreationException,
 } from "./exceptions/payments.exceptions";
+
 export interface PaymentRequest {
   amount: number;
   currency: string;
@@ -93,6 +94,7 @@ export class PaymentService {
   private readonly privateKey: string;
   private readonly integrityKey: string;
   private readonly currency: string;
+
   constructor(private readonly configService: ConfigService) {
     this.apiUrl = this.configService.get<string>("PAYMENT_API_URL");
     this.publicKey = this.configService.get<string>("PAYMENT_PUBLIC_KEY");
@@ -108,6 +110,7 @@ export class PaymentService {
 
       const { accept_personal_auth, acceptance_token } =
         await this.acceptTermsAndConditions(card);
+
       const response = await axios.post(
         `${this.apiUrl}/tokens/cards`,
         {
@@ -124,6 +127,7 @@ export class PaymentService {
           },
         }
       );
+
       return {
         token_card: response.data.data.id,
         last_four: response.data.data.last_four,
@@ -132,7 +136,9 @@ export class PaymentService {
       };
     } catch (error) {
       throw new TokenCreationException(
-        `Error al crear token de tarjeta: ${error.response.data.error}`,
+        `Error al crear token de tarjeta: ${
+          error.response?.data?.error || error.message
+        }`,
         error.stack
       );
     }
@@ -146,9 +152,17 @@ export class PaymentService {
           "Debe aceptar los términos y condiciones para crear un token de tarjeta"
         );
       }
+
       const response = await axios.get(
-        `${this.apiUrl}/merchants/${this.publicKey}`
+        `${this.apiUrl}/merchants/${this.publicKey}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.publicKey}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
+
       return {
         acceptance_token:
           response.data.data.presigned_acceptance.acceptance_token,
@@ -156,8 +170,13 @@ export class PaymentService {
           response.data.data.presigned_personal_data_auth.acceptance_token,
       };
     } catch (error) {
+      if (error instanceof TermsAndConditionsException) {
+        throw error;
+      }
       throw new TermsAndConditionsException(
-        `Error al aceptar términos y condiciones: ${error.response.data.error}`,
+        `Error al aceptar términos y condiciones: ${
+          error.response?.data?.error || error.message
+        }`,
         error.stack
       );
     }
@@ -192,13 +211,12 @@ export class PaymentService {
 
       return response.data.data;
     } catch (error) {
-      console.log("EORRORORRO", error.response.data.error.messages);
       this.logger.error(
-        `Error al crear pago: ${error.response.data.error}`,
+        `Error al crear pago: ${error.response?.data?.error || error.message}`,
         error.stack
       );
       throw new PaymentCreationException(
-        `Error al crear pago: ${error.response.data.error}`,
+        `Error al crear pago: ${error.response?.data?.error || error.message}`,
         error.stack
       );
     }
