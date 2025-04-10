@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   JoinColumn,
 } from "typeorm";
 import { Client } from "../../clients/entities/client.entity";
 import { TransactionProduct } from "./transaction-product.entity";
+import { Delivery } from "../../deliveries/entities/delivery.entity";
 
 @Entity("transactions")
 export class Transaction {
@@ -44,4 +46,7 @@ export class Transaction {
     (transactionProduct) => transactionProduct.transaction
   )
   transactionProducts: TransactionProduct[];
+
+  @OneToOne(() => Delivery, (delivery) => delivery.transaction)
+  delivery: Delivery;
 }

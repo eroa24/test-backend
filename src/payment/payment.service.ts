@@ -171,57 +171,28 @@ export class PaymentService {
         `${reference}${amount_in_cents}${this.currency}${this.integrityKey}`
       );
 
-      const response = {
-        id: "15113-1744237787-28595",
-        created_at: "2025-04-09T22:29:49.251Z",
-        finalized_at: null,
-        amount_in_cents: 1034590,
-        reference: "ORD-GJ2C5F",
-        customer_email: "camiloroabaron@gmail.com",
-        currency: "COP",
-        payment_method_type: "CARD",
-        payment_method: { type: "CARD", extra: [Object], installments: 1 },
-        status: "PENDING",
-        status_message: null,
-        billing_data: null,
-        shipping_address: {
-          name: "adsad",
-          phone_number: "3154343149",
-          address_line_1: "Calle 41 5w 17",
-          country: "CO",
-          region: "CO",
-          city: "Neiva",
-          postal_code: "410001",
+      const response = await axios.post(
+        `${this.apiUrl}/transactions`,
+        {
+          ...paymentRequest,
+          reference,
+          signature: hashSignature,
         },
-        redirect_url: null,
-        payment_source_id: null,
-        payment_link_id: null,
-        customer_data: { full_name: "adsad", phone_number: "3154343149" },
-        bill_id: null,
-        taxes: [],
-        tip_in_cents: null,
-      };
+        {
+          headers: {
+            Authorization: `Bearer ${this.privateKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      //   const response = await axios.post(
-      //     `${this.apiUrl}/transactions`,
-      //     {
-      //       ...paymentRequest,
-      //       reference,
-      //       signature: hashSignature,
-      //     },
-      //     {
-      //       headers: {
-      //         Authorization: `Bearer ${this.privateKey}`,
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
+      this.logger.log(
+        `Pago creado exitosamente con ID: ${response.data.data.id}`
+      );
 
-      //   this.logger.log(`Pago creado exitosamente con ID: ${response.data.id}`);
-
-      //   return response.data.data;
-      return response;
+      return response.data.data;
     } catch (error) {
+      console.log("EORRORORRO", error.response.data.error.messages);
       this.logger.error(
         `Error al crear pago: ${error.response.data.error}`,
         error.stack

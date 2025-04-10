@@ -37,8 +37,33 @@ export class TransactionsController {
     return this.transactionsService.create(createTransactionDto);
   }
 
-  @Get(":id")
-  async getTransaction(@Param("id") id: string) {
-    return this.transactionsService.getTransaction(id);
+  @Get(":email")
+  @ApiOperation({ summary: "Obtener transacciones por email del cliente" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Transacciones encontradas",
+    type: [Transaction],
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: "No se encontraron transacciones para el email proporcionado",
+  })
+  async getTransaction(@Param("email") email: string) {
+    return this.transactionsService.getTransactionByEmail(email);
+  }
+
+  @Get("id/:id")
+  @ApiOperation({ summary: "Obtener transacción por ID" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: "Transacción encontrada",
+    type: Transaction,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: "Transacción no encontrada",
+  })
+  async getTransactionById(@Param("id") id: string) {
+    return this.transactionsService.getTransactionById(id);
   }
 }

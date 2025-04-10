@@ -8,6 +8,7 @@ import { getTypeOrmConfig } from "./database/typeorm.config";
 import { ClientsModule } from "./clients/clients.module";
 import { TransactionsModule } from "./transactions/transactions.module";
 import { PaymentModule } from "./payment/payment.module";
+import { DeliveriesModule } from "./deliveries/deliveries.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PaymentModule } from "./payment/payment.module";
     ClientsModule,
     TransactionsModule,
     PaymentModule,
+    DeliveriesModule,
   ],
 })
 export class AppModule {}
