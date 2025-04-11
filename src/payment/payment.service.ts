@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import axios from "axios";
-import crypto from "crypto";
+import * as crypto from "crypto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import {
   TokenCreationException,
@@ -251,13 +251,7 @@ export class PaymentService {
   }
 
   private async hashSignature(text: string) {
-    const encondedText = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", encondedText);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
+    return crypto.createHash("sha256").update(text).digest("hex");
   }
 
   private generateReference = (prefix = "ORD") => {
